@@ -1,0 +1,98 @@
+package com.translate.lexer;
+
+import java_cup.runtime.*;
+
+class Parser;
+
+parser code {:
+    public void report_error(String message, Object info) {
+        System.err.println("Error sintáctico: " + message);
+        
+        if (info instanceof Symbol sym) {
+            System.err.println("En línea " + sym.left + ", columna " + sym.right);
+        }
+    }
+:};
+
+terminal DEFINE, PRINT, IF, ELSE, ELSEIF, WHILE, DO, LOOP, FUNCTION, RETURN, END, THEN;
+terminal TRUE, FALSE;
+terminal AND, OR, NOT;
+terminal EQ, EQEQ, NEQ, LT, GT, LTE, GTE;
+terminal PLUS, MINUS, MULT, DIV;
+terminal LPAR, RPAR, SEMICOLON, COMMA;
+terminal NUMERO, DECIMAL, CADENA;
+terminal ID;
+
+non terminal programa, sentencias, sentencia, expr, expr_list, parametros, argumentos, bloque, epsilon;
+
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+precedence left AND, OR;
+precedence left EQEQ, NEQ;
+precedence left LT, GT, LTE, GTE;
+precedence right NOT;
+precedence left LPAR, RPAR;
+precedence left SEMICOLON, COMMA;
+precedence left TRUE, FALSE;
+precedence left DEFINE, PRINT, IF, ELSE, ELSEIF, WHILE, LOOP, FUNCTION, RETURN, END;
+precedence left TRUE, FALSE;
+precedence left AND, OR, NOT;
+precedence left EQ, EQEQ, NEQ, LT, GT, LTE, GTE;
+
+start with programa;
+
+programa ::= sentencias:sts {: RESULT = sts; :};
+
+sentencias ::= sentencias:sts sentencia:st {: RESULT = sts + "\n" + st; :}
+             | sentencia:st {: RESULT = st; :};
+
+sentencia ::= DEFINE ID:id EQ expr:exp SEMICOLON {: RESULT = "DEFINE " + id + " = " + exp + ";"; :} 
+            | ID:id EQ expr:exp SEMICOLON {: RESULT = id + " = " + exp + ";"; :} 
+            | RETURN expr:exp SEMICOLON {: RESULT = "RETURN " + exp + ";"; :}
+            | PRINT expr:exp SEMICOLON {: RESULT = "PRINT " + exp + ";"; :}
+            | PRINT expr_list:exl SEMICOLON {: RESULT = "PRINT " + exl + ";"; :}
+            | IF expr:exp THEN bloque:bl ELSEIF expr:exp2 THEN bloque:bl2 ELSE bloque:bl3 END {: RESULT = "IF " + exp + " THEN " + bl + " ELSEIF " + exp2 + " THEN " + bl2 + " ELSE " + bl3 + " END"; :}
+            | IF expr:exp THEN bloque:bl ELSE bloque:bl2 END {: RESULT = "IF " + exp + " THEN " + bl + " ELSE " + bl2 + " END"; :}
+            | IF expr:exp THEN bloque:bl END {: RESULT = "IF " + exp + " THEN " + bl + " END"; :}
+            | WHILE expr:exp DO bloque:bl END {: RESULT = "WHILE " + exp + " DO " + bl + " END"; :}
+            | LOOP LPAR expr:exp SEMICOLON expr:exp2 SEMICOLON expr:exp3 RPAR DO bloque:bl END {: RESULT = "LOOP (" + exp + "; " + exp2 + "; " + exp3 + ") DO " + bl + " END"; :}
+            | FUNCTION ID:id LPAR parametros:par RPAR bloque:bl END {: RESULT = "FUNCTION " + id + "(" + par + ") " + bl + " END"; :};
+            
+
+parametros ::= expr:exp {: RESULT = exp; :}
+             | parametros:parm COMMA expr:exp {: RESULT = parm + ", " + exp; :}
+             | epsilon:eps {: RESULT = eps; :};
+
+argumentos ::= expr:exp {: RESULT = exp; :}
+             | argumentos:args COMMA expr:exp {: RESULT = args + ", " + exp; :}
+             | epsilon:eps {: RESULT = eps; :};
+
+expr_list ::= expr:exp {: RESULT = exp; :}
+            | expr_list:expl COMMA expr:exp {: RESULT = expl + ", " + exp; :};
+
+bloque ::= sentencias:sts {: RESULT = sts; :};
+
+expr ::= expr:i PLUS expr:j {: RESULT = i + " PLUS " + j; :}
+       | expr:i MINUS expr:j {: RESULT = i + " MINUS " + j; :} 
+       | expr:i MULT expr:j {: RESULT = i + " MULT " + j; :} 
+       | expr:i DIV expr:j {: RESULT = i + " DIV " + j; :}
+       | expr:i EQ expr:j {: RESULT = i + " ASIGN " + j; :}
+       | expr:i EQEQ expr:j {: RESULT = i + " EQ " + j; :}         
+       | expr:i NEQ expr:j {: RESULT = i + " NEQ " + j; :}
+       | expr:i LT expr:j {: RESULT = i + " LT " + j; :}
+       | expr:i LTE expr:j {: RESULT = i + " LTE " + j; :}
+       | expr:i GT expr:j {: RESULT = i + " GT " + j; :}
+       | expr:i GTE expr:j {: RESULT = i + " GTE " + j; :}
+       | expr:i AND expr:j {: RESULT = i + " AND " + j; :}
+       | expr:i OR expr:j {: RESULT = i + " OR " + j; :}
+       | NOT expr:j {: RESULT = "NOT " + j; :}
+       | LPAR expr:j RPAR {: RESULT = "(" + j + ")"; :}
+       | ID:i {: RESULT = i; :}
+       | NUMERO:i {: RESULT = i.toString() + ""; :}
+       | DECIMAL:i {: RESULT = i.toString() + ""; :}
+       | CADENA:i {: RESULT = i + ""; :}
+       | TRUE:i {: RESULT = i.toString() + ""; :}
+       | FALSE:i {: RESULT = i.toString() + ""; :}
+       | ID:i LPAR argumentos:j RPAR {: RESULT = i + "(" + j + ")"; :};
+
+epsilon ::= /* vacío */ {: RESULT = ""; :};
