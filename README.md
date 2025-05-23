@@ -61,28 +61,6 @@ SimpleScript soporta los siguientes tipos primitivos:
 
 ---
 
-## 💻 Ejemplo de Código en SimpleScript
-
-```simplescript
-FUNCTION factorial(n)
-    DEFINE resultado = 1;
-    WHILE n > 1 DO
-        resultado = resultado * n;
-        n = n - 1;
-    END
-    RETURN resultado;
-END
-
-DEFINE num = 5;
-DEFINE fact = factorial(num);
-PRINT "El factorial de ", num, " es ", fact;
-
-IF fact > 18 THEN
-    PRINT "El resultado es mayor que 18";
-ELSE
-    PRINT "El resultado es menor o igual a 18";
-END
-
 #Tabla de Tokens y Lexemas
 
 | Lexema                  | Expresión Regular        | Token     |
@@ -136,5 +114,25 @@ http://93.127.139.74:8080
 
 Gracias por revisar este proyecto. Para cualquier duda o aporte, no dudes en contactarme.
 
-Carlos Daniel Galvan Morales
-Carné: 7590-20-16458
+
+## 💻 Ejemplo de Código en SimpleScript
+
+```simplescript
+FUNCTION factorial(n)
+    DEFINE resultado = 1;
+    WHILE n > 1 DO
+        resultado = resultado * n;
+        n = n - 1;
+    END
+    RETURN resultado;
+END
+
+DEFINE num = 5;
+DEFINE fact = factorial(num);
+PRINT "El factorial de ", num, " es ", fact;
+
+IF fact > 18 THEN
+    PRINT "El resultado es mayor que 18";
+ELSE
+    PRINT "El resultado es menor o igual a 18";
+END
